@@ -1,0 +1,13 @@
+# Godot 4.x
+.godot/
+*.import
+*.translation
+export/
+*.tmp
+*.log
+
+# 用户数据（保留示例）
+# export_presets.cfg
+
+# macOS
+.DS_Store
