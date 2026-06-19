@@ -1,3 +1,4 @@
+class_name Character
 extends Node2D
 
 enum Team { PLAYER, ENEMY }
@@ -13,10 +14,10 @@ var attack_range: int
 var move_range: int
 var is_defending: bool = false
 
-# --- 依赖注入（后续取消注释） ---
-# var controller: Controller
-# var battle_grid_data: BattleGridData
-# var grid_renderer: GridRenderer
+# --- 依赖注入 ---
+# var controller: Controller    # 后续取消注释
+var battle_grid_data: BattleGridData
+# var grid_renderer: GridRenderer    # 后续取消注释
 
 # --- 坐标 ---
 var grid_pos: Vector2i
@@ -58,14 +59,14 @@ func defend() -> void:
 func reset_defense() -> void:
 	is_defending = false
 
-# --- 委托给数据层（后续取消注释） ---
-# func get_move_options() -> Array[Vector2i]:
-# 	if battle_grid_data:
-# 		return battle_grid_data.get_move_range(grid_pos, move_range)
-# 	return []
-#
-#
-# func get_attack_targets() -> Array[Character]:
-# 	if battle_grid_data:
-# 		return battle_grid_data.get_characters_in_range(grid_pos, attack_range, team)
-# 	return []
+# --- 委托给数据层 ---
+func get_move_options() -> Array[Vector2i]:
+	if battle_grid_data:
+		return battle_grid_data.get_move_range(grid_pos, move_range)
+	return []
+
+
+func get_attack_targets() -> Array[Character]:
+	if battle_grid_data:
+		return battle_grid_data.get_characters_in_range(grid_pos, attack_range, team)
+	return []
