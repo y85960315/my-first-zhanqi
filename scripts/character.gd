@@ -17,14 +17,14 @@ var is_defending: bool = false
 # --- 依赖注入 ---
 # var controller: Controller    # 后续取消注释
 var battle_grid_data: BattleGridData
-# var grid_renderer: GridRenderer    # 后续取消注释
+var grid_renderer: GridRenderer
 
-# --- 坐标 ---
-var grid_pos: Vector2i
-#	set(to):
-#		grid_pos = to
-#		if grid_renderer:
-#			position = grid_renderer.grid_to_world(to)
+# --- 坐标（grid_pos 变化时自动同步世界坐标）---
+var grid_pos: Vector2i:
+	set(to):
+		grid_pos = to
+		if grid_renderer:
+			position = grid_renderer.grid_to_world(to)
 
 
 func setup(stats: Dictionary) -> void:
