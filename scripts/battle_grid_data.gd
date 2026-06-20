@@ -94,10 +94,11 @@ func place_character(character: Character, pos: Vector2i) -> void:
 func move_character(from_pos: Vector2i, to_pos: Vector2i) -> void:
 	var from_cell := get_cell(from_pos)
 	var to_cell := get_cell(to_pos)
-	if from_cell and to_cell:
+	if from_cell and to_cell and from_cell.occupant:
+		var mover := from_cell.occupant
 		from_cell.occupant = null
-		to_cell.occupant = from_cell.occupant
-		to_cell.occupant.grid_pos = to_pos
+		to_cell.occupant = mover
+		mover.grid_pos = to_pos
 
 
 # 清除角色在 pos 的占位（角色死亡时调用）
