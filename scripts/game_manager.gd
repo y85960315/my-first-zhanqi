@@ -8,6 +8,7 @@ var players: Array[Character] = []
 var enemies: Array[Character] = []
 var player_controller: PlayerController
 var action_menu: ActionMenu
+var _info_panel: Control
 
 const PLAYER_STATS := {
 	name = "Player", team = Character.Team.PLAYER,
@@ -54,6 +55,10 @@ func _setup() -> void:
 	action_menu = load("res://scenes/action_menu.tscn").instantiate()
 	action_menu.name = "ActionMenu"
 	ui_layer.add_child(action_menu)
+
+	# InfoPanel — 选中角色状态
+	_info_panel = _create_info_panel()
+	ui_layer.add_child(_info_panel)
 
 	action_menu.wait_pressed.connect(_on_wait)
 	action_menu.end_turn_pressed.connect(_on_end_turn)
@@ -116,6 +121,48 @@ var _move_from: Vector2i
 var _attack_mode: bool = false
 
 
+
+var _name_label: Label
+var _hp_label: Label
+var _status_label: Label
+
+
+func _create_info_panel() -> Control:
+	var panel := Panel.new()
+	panel.position = Vector2(10, 10)
+	panel.size = Vector2(220, 80)
+
+	var vbox := VBoxContainer.new()
+	vbox.anchor_right = 1.0
+	vbox.anchor_bottom = 1.0
+	panel.add_child(vbox)
+
+	_name_label = Label.new()
+	_name_label.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(_name_label)
+
+	_hp_label = Label.new()
+	_hp_label.add_theme_font_size_override("font_size", 16)
+	vbox.add_child(_hp_label)
+
+	_status_label = Label.new()
+	_status_label.add_theme_font_size_override("font_size", 14)
+	_status_label.modulate = Color(1.0, 0.8, 0.4)
+	vbox.add_child(_status_label)
+
+	panel.visible = false
+	return panel
+
+
+func _refresh_info_panel() -> void:
+	if _current_actor == null:
+		_info_panel.visible = false
+		return
+	_info_panel.visible = true
+	_name_label.text = _current_actor.character_name
+	_hp_label.text = 'HP: %d / %d' % [_current_actor.current_hp, _current_actor.max_hp]
+	_status_label.text = '防御中' if _current_actor.is_defending else ''
+
 func start_round() -> void:
 	_round_number += 1
 	print("========== 第 %d 回合 ==========" % _round_number)
@@ -164,6 +211,7 @@ func _do_attack(target: Character) -> void:
 	_attack_mode = false
 	print("[回合] %s 攻击完成，回合自动结束" % _current_actor.character_name)
 	_end_actor()
+	_refresh_info_panel()
 
 
 func _on_undo() -> void:
@@ -179,6 +227,7 @@ func _on_undo() -> void:
 	_has_moved = false
 	player_controller.start_move_phase(_current_actor)
 	_refresh_attack_button()
+	_refresh_info_panel()
 
 
 func _on_skill(skill_name: String) -> void:
@@ -190,6 +239,7 @@ func _on_skill(skill_name: String) -> void:
 			_has_acted = true
 			print("[回合] %s 使用防御，回合自动结束" % _current_actor.character_name)
 			_end_actor()
+	_refresh_info_panel()
 
 
 func _on_move_cell_clicked(target_cell: Vector2i) -> void:
@@ -281,6 +331,7 @@ func _end_actor() -> void:
 	_has_moved = false
 	_has_acted = false
 	_attack_mode = false
+	_info_panel.visible = false
 	grid_renderer.clear_highlights()
 	action_menu.show_attack_button(false)
 	action_menu.show_undo_button(false)
@@ -340,18 +391,19 @@ func _input(event: InputEvent) -> void:
 		return
 	if event.button_index != MOUSE_BUTTON_LEFT and event.button_index != MOUSE_BUTTON_RIGHT:
 		return
-
+	var cell := grid_renderer.get_clicked_cell(event)
 	# 右键 → 取消攻击模式 或 撤销移动
 	if event.button_index == MOUSE_BUTTON_RIGHT:
 		if _attack_mode:
 			_cancel_attack_mode()
 		elif _has_moved and not _has_acted:
 			_on_undo()
+		elif _current_actor != null:
+			_deselect()
 		return
 
 	if event.button_index != MOUSE_BUTTON_LEFT:
 		return
-	var cell := grid_renderer.get_clicked_cell(event)
 	var cell_data := battle_grid_data.get_cell(cell)
 
 	# 攻击模式：点敌人攻击，点空地取消
@@ -369,14 +421,30 @@ func _input(event: InputEvent) -> void:
 		if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.ENEMY:
 			_on_enemy_clicked(cell_data.occupant)
 			return
-		player_controller.handle_click(cell)
-		return
+		if player_controller.handle_click(cell):
+			return
 
 	# 点击待行动玩家
 	if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.PLAYER:
 		var ch := cell_data.occupant
-		if ch in _pending_players:
+		if ch in _pending_players and ch != _current_actor:
 			_select_player(ch)
+			return
+
+	# 点空地或不可交互 → 取消选中
+	if _current_actor != null:
+		_deselect()
+
+
+func _deselect() -> void:
+	if _attack_mode:
+		_cancel_attack_mode()
+	grid_renderer.clear_highlights()
+	player_controller.phase = PlayerController.Phase.IDLE
+	_current_actor = null
+	_info_panel.visible = false
+	action_menu.show_attack_button(false)
+	action_menu.show_undo_button(false)
 
 
 func _select_player(ch: Character) -> void:
@@ -390,6 +458,7 @@ func _select_player(ch: Character) -> void:
 	_attack_mode = false
 	print("[回合] %s 开始行动" % ch.character_name)
 	player_controller.start_move_phase(ch)
+	_refresh_info_panel()
 	_refresh_attack_button()
 
 
