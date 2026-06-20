@@ -107,6 +107,7 @@ var _has_moved: bool = false
 var _has_acted: bool = false
 var _move_from: Vector2i
 var _pending_attack_target: Character = null
+var _attack_mode: bool = false
 
 
 func start_round() -> void:
@@ -115,6 +116,14 @@ func start_round() -> void:
 	for ch in players + enemies:
 		ch.reset_defense()
 	_pending_players = _get_alive(players)
+
+
+func _refresh_attack_button() -> void:
+	if _current_actor == null or _has_acted:
+		action_menu.show_attack_button(false)
+		return
+	var can_attack := _current_actor.get_attack_targets().size() > 0
+	action_menu.show_attack_button(can_attack)
 
 
 func _on_wait() -> void:
@@ -132,14 +141,30 @@ func _on_end_turn() -> void:
 
 
 func _on_attack() -> void:
-	if _current_actor == null or not _pending_attack_target:
+	if _current_actor == null or _has_acted:
 		return
+
+	# 如果已经点过敌人（_on_enemy_clicked 设置了 target）→ 直接执行
+	if _pending_attack_target != null:
+		_do_attack()
+		return
+
+	# 进入攻击模式：红色高亮攻击范围
+	_attack_mode = true
+	grid_renderer.clear_highlights()
+	action_menu.show_attack_button(false)
+	var attack_cells := battle_grid_data.get_attack_range(_current_actor.grid_pos, _current_actor.attack_range)
+	grid_renderer.highlight_cells(attack_cells, GridRenderer.ATLAS_ATTACK)
+
+
+func _do_attack() -> void:
 	_has_acted = true
 	combat_system.execute_action(_current_actor, _pending_attack_target, Controller.ActionType.ATTACK)
 	grid_renderer.clear_highlights()
 	action_menu.show_attack_button(false)
 	if _has_moved:
 		action_menu.show_undo_button(false)
+	_attack_mode = false
 	print("[回合] %s 攻击完成，回合自动结束" % _current_actor.character_name)
 	_end_actor()
 
@@ -148,13 +173,16 @@ func _on_undo() -> void:
 	if _current_actor == null or not _has_moved:
 		return
 	action_menu.show_undo_button(false)
+	_attack_mode = false
+	grid_renderer.clear_highlights()
+	_pending_attack_target = null
 	var path := battle_grid_data.get_shortest_path(_current_actor.grid_pos, _move_from)
 	if path.size() >= 2:
 		_current_actor.walk_along_path(path)
 		await _current_actor.walk_finished
 	_has_moved = false
-	grid_renderer.clear_highlights()
 	player_controller.start_move_phase(_current_actor)
+	_refresh_attack_button()
 
 
 func _on_skill(skill_name: String) -> void:
@@ -180,6 +208,7 @@ func _on_move_cell_clicked(target_cell: Vector2i) -> void:
 	_current_actor.walk_along_path(path)
 	await _current_actor.walk_finished
 	grid_renderer.clear_highlights()
+	_refresh_attack_button()
 
 
 func _find_attack_position(actor: Character, target: Character) -> Vector2i:
@@ -200,10 +229,21 @@ func _find_attack_position(actor: Character, target: Character) -> Vector2i:
 func _on_enemy_clicked(enemy: Character) -> void:
 	if _current_actor == null:
 		return
+
+	# 攻击模式：直接选敌人 → 攻击
+	if _attack_mode:
+		if _is_in_attack_range(_current_actor, enemy):
+			_pending_attack_target = enemy
+			_do_attack()
+		return
+
+	# MOVE 模式：自动走到攻击位
+	if _has_moved:
+		return
 	var attack_pos := _find_attack_position(_current_actor, enemy)
 	if attack_pos == Vector2i(-1, -1):
 		return
-	if attack_pos != _current_actor.grid_pos and not _has_moved:
+	if attack_pos != _current_actor.grid_pos:
 		_move_from = _current_actor.grid_pos
 		_has_moved = true
 		action_menu.show_undo_button(true)
@@ -212,8 +252,11 @@ func _on_enemy_clicked(enemy: Character) -> void:
 		await _current_actor.walk_finished
 	_pending_attack_target = enemy
 	grid_renderer.clear_highlights()
-	grid_renderer.highlight_cells([enemy.grid_pos], GridRenderer.ATLAS_ATTACK)
-	action_menu.show_attack_button(true)
+	_refresh_attack_button()
+
+
+func _is_in_attack_range(actor: Character, target: Character) -> bool:
+	return _manhattan(actor.grid_pos, target.grid_pos) <= actor.attack_range
 
 
 func _end_actor() -> void:
@@ -224,6 +267,7 @@ func _end_actor() -> void:
 	_has_moved = false
 	_has_acted = false
 	_pending_attack_target = null
+	_attack_mode = false
 	grid_renderer.clear_highlights()
 	action_menu.show_attack_button(false)
 	action_menu.show_undo_button(false)
@@ -281,10 +325,32 @@ func check_win_condition() -> void:
 func _input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton or not event.pressed:
 		return
+	if event.button_index != MOUSE_BUTTON_LEFT and event.button_index != MOUSE_BUTTON_RIGHT:
+		return
+
+	# 攻击模式右键 → 取消
+	if _attack_mode and event.button_index == MOUSE_BUTTON_RIGHT:
+		grid_renderer.clear_highlights()
+		_attack_mode = false
+		_refresh_attack_button()
+		return
+
 	if event.button_index != MOUSE_BUTTON_LEFT:
 		return
 	var cell := grid_renderer.get_clicked_cell(event)
 	var cell_data := battle_grid_data.get_cell(cell)
+
+	# 攻击模式：点敌人攻击，点空地取消
+	if _attack_mode:
+		if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.ENEMY:
+			_on_enemy_clicked(cell_data.occupant)
+		else:
+			grid_renderer.clear_highlights()
+			_attack_mode = false
+			_refresh_attack_button()
+		return
+
+	# 角色操作中 → 敌人物或移动
 	if _current_actor != null and player_controller.phase == PlayerController.Phase.MOVE:
 		if _current_actor.is_moving:
 			return
@@ -293,6 +359,8 @@ func _input(event: InputEvent) -> void:
 			return
 		player_controller.handle_click(cell)
 		return
+
+	# 点击待行动玩家
 	if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.PLAYER:
 		var ch := cell_data.occupant
 		if ch in _pending_players:
@@ -308,8 +376,10 @@ func _select_player(ch: Character) -> void:
 	_has_moved = false
 	_has_acted = false
 	_pending_attack_target = null
+	_attack_mode = false
 	print("[回合] %s 开始行动" % ch.character_name)
 	player_controller.start_move_phase(ch)
+	_refresh_attack_button()
 
 
 func _get_alive_enemies(team: Character.Team) -> Array[Character]:
