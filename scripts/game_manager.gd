@@ -171,7 +171,7 @@ func _do_attack(target: Character) -> void:
 
 
 func _on_undo() -> void:
-	if _current_actor == null or not _has_moved:
+	if _current_actor == null or not _has_moved or _current_actor.is_moving:
 		return
 	action_menu.show_undo_button(false)
 	_attack_mode = false
@@ -337,9 +337,12 @@ func _input(event: InputEvent) -> void:
 	if event.button_index != MOUSE_BUTTON_LEFT and event.button_index != MOUSE_BUTTON_RIGHT:
 		return
 
-	# 攻击模式右键 → 取消
-	if _attack_mode and event.button_index == MOUSE_BUTTON_RIGHT:
-		_cancel_attack_mode()
+	# 右键 → 取消攻击模式 或 撤销移动
+	if event.button_index == MOUSE_BUTTON_RIGHT:
+		if _attack_mode:
+			_cancel_attack_mode()
+		if _has_moved and not _has_acted:
+			_on_undo()
 		return
 
 	if event.button_index != MOUSE_BUTTON_LEFT:
