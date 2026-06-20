@@ -168,15 +168,15 @@ func _input(event: InputEvent) -> void:
 			move_options = selected_character.get_move_options()
 			grid_renderer.highlight_cells(move_options, GridRenderer.ATLAS_MOVE)
 	else:
-		# 阶段 B：点击移动目标
-		if cell in move_options:
-			var old_pos := selected_character.grid_pos
-			battle_grid_data.move_character(old_pos, cell)
-			grid_renderer.clear_highlights()
-			selected_character = null
-			move_options.clear()
-		else:
-			# 点击无效格 → 取消选中
-			grid_renderer.clear_highlights()
-			selected_character = null
-			move_options.clear()
+			# 阶段 B：点击移动目标
+			if cell in move_options:
+				var path := battle_grid_data.get_shortest_path(selected_character.grid_pos, cell)
+				grid_renderer.clear_highlights()
+				move_options.clear()
+				selected_character.walk_along_path(path)
+				selected_character = null
+			else:
+				# 点击无效格 → 取消选中
+				grid_renderer.clear_highlights()
+				selected_character = null
+				move_options.clear()

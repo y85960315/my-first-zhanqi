@@ -48,6 +48,34 @@ func is_walkable(pos: Vector2i) -> bool:
 	return cell.is_walkable and cell.occupant == null
 
 
+# BFS 回溯出从 from 到 to 的最短路径（含 from 和 to），无路径返回空数组
+func get_shortest_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
+	if from == to:
+		return [from]
+	var visited: Dictionary = {}
+	var parent: Dictionary = {}
+	var queue: Array = [from]
+	visited[from] = true
+
+	while queue.size() > 0:
+		var cur = queue.pop_front()
+		for neighbor in _get_neighbors(cur):
+			if visited.has(neighbor):
+				continue
+			visited[neighbor] = true
+			parent[neighbor] = cur
+			if neighbor == to:
+				var path: Array[Vector2i] = []
+				var pos = to
+				while pos != from:
+					path.push_front(pos)
+					pos = parent[pos]
+				path.push_front(from)
+				return path
+			queue.push_back(neighbor)
+	return []
+
+
 # BFS 寻路：计算从 origin 出发 move_limit 步内可达的所有格子
 func get_move_range(origin: Vector2i, move_limit: int) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []

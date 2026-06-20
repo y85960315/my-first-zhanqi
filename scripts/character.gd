@@ -19,6 +19,12 @@ var is_defending: bool = false
 var battle_grid_data: BattleGridData
 var grid_renderer: GridRenderer
 
+# --- 移动动画 ---
+signal walk_finished
+var is_moving: bool = false
+var _path: Array[Vector2i] = []
+var _path_step: int = 0
+
 # --- 坐标（grid_pos 变化时自动同步世界坐标）---
 var grid_pos: Vector2i:
 	set(to):
@@ -42,6 +48,36 @@ func setup(stats: Dictionary) -> void:
 
 func set_texture(tex: Texture2D) -> void:
 	$Sprite2D.texture = tex
+
+
+func walk_along_path(path: Array[Vector2i]) -> void:
+	if path.size() < 2:
+		return
+	is_moving = true
+	_path = path
+	_path_step = 0
+	_step_along_path()
+
+
+func _step_along_path() -> void:
+	_path_step += 1
+	if _path_step >= _path.size():
+		is_moving = false
+		walk_finished.emit()
+		return
+
+	var target_pos := grid_renderer.grid_to_world(_path[_path_step])
+	var tween := create_tween()
+	tween.tween_property(self, "position", target_pos, 0.12)
+	tween.tween_callback(_on_step_done)
+
+
+func _on_step_done() -> void:
+	var from := _path[_path_step - 1]
+	var to := _path[_path_step]
+	battle_grid_data.move_character(from, to)
+	grid_pos = to
+	_step_along_path()
 
 
 func is_alive() -> bool:
