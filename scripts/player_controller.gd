@@ -49,6 +49,8 @@ func decide_action(character: Character) -> ActionType:
 
 
 func decide_target(_character: Character, enemies: Array[Character]) -> Character:
+	if enemies.is_empty():
+		return null
 	var best := enemies[0]
 	for e in enemies:
 		if e.current_hp < best.current_hp:

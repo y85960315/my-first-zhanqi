@@ -30,6 +30,8 @@ func _get_alive_enemies() -> Array[Character]:
 
 
 func _pick_priority_target(enemies: Array[Character]) -> Character:
+	if enemies.is_empty():
+		return null
 	var best := enemies[0]
 	for enemy in enemies:
 		if enemy.current_hp < best.current_hp:
@@ -38,6 +40,8 @@ func _pick_priority_target(enemies: Array[Character]) -> Character:
 
 
 func _get_closest_to(options: Array[Vector2i], target: Vector2i) -> Vector2i:
+	if options.is_empty():
+		return target
 	var best_pos := options[0]
 	var best_dist := _manhattan(best_pos, target)
 	for pos in options:
