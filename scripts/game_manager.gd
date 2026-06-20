@@ -6,13 +6,18 @@ var grid_renderer: GridRenderer
 var combat_system: CombatSystem
 var players: Array[Character] = []
 var enemies: Array[Character] = []
-var player_controller: PlayerController
 var action_menu: ActionMenu
 var _info_panel: Control
 
 const PLAYER_STATS := {
 	name = "Player", team = Character.Team.PLAYER,
 	max_hp = 100, attack_power = 15, defense_power = 5,
+	attack_range = 1, move_range = 3,
+}
+
+const HANLI_STATS := {
+	name = "韩立", team = Character.Team.PLAYER,
+	max_hp = 80, attack_power = 12, defense_power = 4,
 	attack_range = 1, move_range = 3,
 }
 
@@ -66,14 +71,11 @@ func _setup() -> void:
 	action_menu.undo_pressed.connect(_on_undo)
 	action_menu.skill_selected.connect(_on_skill)
 
-	player_controller = PlayerController.new()
-	player_controller.name = "PlayerController"
-	player_controller.battle_grid_data = battle_grid_data
-	player_controller.setup(grid_renderer)
-	player_controller.move_decided.connect(_on_move_cell_clicked)
+	var p1 := create_character(PLAYER_STATS, Vector2i(2, 4), load("res://assets/characters/player.png"), _create_player_controller())
+	players.append(p1)
 
-	var player := create_character(PLAYER_STATS, Vector2i(2, 4), load("res://assets/characters/player.png"), player_controller)
-	players.append(player)
+	var p2 := create_character(HANLI_STATS, Vector2i(7, 4), load("res://assets/characters/player.png"), _create_player_controller())
+	players.append(p2)
 
 	var enemy1 := create_character(ENEMY1_STATS, Vector2i(5, 1), load("res://assets/characters/enemy1.png"), _create_ai_controller())
 	enemies.append(enemy1)
@@ -162,6 +164,17 @@ func _refresh_info_panel() -> void:
 	_name_label.text = _current_actor.character_name
 	_hp_label.text = 'HP: %d / %d' % [_current_actor.current_hp, _current_actor.max_hp]
 	_status_label.text = '防御中' if _current_actor.is_defending else ''
+func _create_player_controller() -> PlayerController:
+	var pc := PlayerController.new()
+	pc.battle_grid_data = battle_grid_data
+	pc.setup(grid_renderer)
+	pc.move_decided.connect(_on_move_cell_clicked)
+	return pc
+
+
+func _pc() -> PlayerController:
+	return _current_actor.controller as PlayerController
+
 
 func start_round() -> void:
 	_round_number += 1
@@ -220,12 +233,8 @@ func _on_undo() -> void:
 	action_menu.show_undo_button(false)
 	_attack_mode = false
 	grid_renderer.clear_highlights()
-	var path := battle_grid_data.get_shortest_path(_current_actor.grid_pos, _move_from)
-	if path.size() >= 2:
-		_current_actor.walk_along_path(path)
-		await _current_actor.walk_finished
-	_has_moved = false
-	player_controller.start_move_phase(_current_actor)
+	await _rollback_move()
+	_pc().start_move_phase(_current_actor)
 	_refresh_attack_button()
 	_refresh_info_panel()
 
@@ -254,7 +263,7 @@ func _on_move_cell_clicked(target_cell: Vector2i) -> void:
 	_current_actor.walk_along_path(path)
 	await _current_actor.walk_finished
 	if _current_actor != null:
-		player_controller.phase = PlayerController.Phase.MOVE
+		_pc().phase = PlayerController.Phase.MOVE
 	_refresh_attack_button()
 
 
@@ -320,12 +329,13 @@ func _cancel_attack_mode() -> void:
 	grid_renderer.clear_highlights()
 	_attack_mode = false
 	if _current_actor != null:
-		player_controller.phase = PlayerController.Phase.MOVE
+		_pc().phase = PlayerController.Phase.MOVE
 	_refresh_attack_button()
 
 func _end_actor() -> void:
 	if _current_actor == null:
 		return
+	var ctrl := _current_actor.controller
 	_pending_players.erase(_current_actor)
 	_current_actor = null
 	_has_moved = false
@@ -335,7 +345,7 @@ func _end_actor() -> void:
 	grid_renderer.clear_highlights()
 	action_menu.show_attack_button(false)
 	action_menu.show_undo_button(false)
-	player_controller.phase = PlayerController.Phase.IDLE
+	ctrl.phase = PlayerController.Phase.IDLE
 
 
 func _execute_enemy_turns() -> void:
@@ -415,13 +425,13 @@ func _input(event: InputEvent) -> void:
 		return
 
 	# 角色操作中 → 敌人物或移动
-	if _current_actor != null and player_controller.phase == PlayerController.Phase.MOVE:
+	if _current_actor != null and _pc().phase == PlayerController.Phase.MOVE:
 		if _current_actor.is_moving:
 			return
 		if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.ENEMY:
 			_on_enemy_clicked(cell_data.occupant)
 			return
-		if player_controller.handle_click(cell):
+		if _pc().handle_click(cell):
 			return
 
 	# 点击待行动玩家
@@ -436,12 +446,23 @@ func _input(event: InputEvent) -> void:
 		_deselect()
 
 
+func _rollback_move() -> void:
+	if _current_actor == null:
+		return
+	action_menu.show_undo_button(false)
+	var path := battle_grid_data.get_shortest_path(_current_actor.grid_pos, _move_from)
+	if path.size() >= 2:
+		_current_actor.walk_along_path(path)
+		await _current_actor.walk_finished
+	_has_moved = false
+
+
 func _deselect() -> void:
 	if _attack_mode:
 		_cancel_attack_mode()
 	# 保留 _current_actor 不置空，避免重新选中时丢失 _has_moved 等状态
 	grid_renderer.clear_highlights()
-	player_controller.phase = PlayerController.Phase.IDLE
+	_pc().phase = PlayerController.Phase.IDLE
 	_info_panel.visible = false
 	action_menu.show_attack_button(false)
 	action_menu.show_undo_button(false)
@@ -449,18 +470,25 @@ func _deselect() -> void:
 
 func _select_player(ch: Character) -> void:
 	if ch == _current_actor:
-		player_controller.start_move_phase(ch)
+		_pc().start_move_phase(ch)
 		_refresh_info_panel()
 		_refresh_attack_button()
 		return
 	if ch.is_moving:
 		return
+	# 切换角色：回滚旧角色的移动/攻击模式
+	if _current_actor != null and _current_actor != ch:
+		if _attack_mode:
+			_cancel_attack_mode()
+		if _has_moved and not _has_acted:
+			await _rollback_move()
+		_deselect()
 	_current_actor = ch
 	_has_moved = false
 	_has_acted = false
 	_attack_mode = false
 	print("[回合] %s 开始行动" % ch.character_name)
-	player_controller.start_move_phase(ch)
+	_pc().start_move_phase(ch)
 	_refresh_info_panel()
 	_refresh_attack_button()
 
