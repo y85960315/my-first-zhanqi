@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://cr33g4von0fe4"]
+
+[ext_resource type="Script" uid="uid://beev5h1pm2hfg" path="res://scripts/ui/action_menu.gd" id="1_m2v2x"]
+
+[node name="ActionMenu" type="Control" unique_id=947456315]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_m2v2x")
+
+[node name="MainHBox" type="HBoxContainer" parent="." unique_id=746622577]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="WaitBtn" type="Button" parent="MainHBox" unique_id=345544662]
+layout_mode = 2
+text = "⏳ 等待"
+
+[node name="SkillBtn" type="Button" parent="MainHBox" unique_id=1759391219]
+layout_mode = 2
+text = "🔧 技能"
+
+[node name="EndTurnBtn" type="Button" parent="MainHBox" unique_id=1019808016]
+layout_mode = 2
+text = "✅ 结束回合"
+
+[node name="AttackBtn" type="Button" parent="MainHBox" unique_id=1693976989]
+visible = false
+layout_mode = 2
+text = "⚔️  攻击"
+
+[node name="UndoBtn" type="Button" parent="MainHBox" unique_id=446949470]
+visible = false
+layout_mode = 2
+text = "↩ 撤销"
+
+[node name="SkillPopup" type="PopupMenu" parent="MainHBox" unique_id=1515519172]
