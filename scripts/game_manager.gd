@@ -151,11 +151,7 @@ func _on_attack() -> void:
 		return
 
 	# 进入攻击模式：红色高亮攻击范围
-	_attack_mode = true
-	grid_renderer.clear_highlights()
-	action_menu.show_attack_button(false)
-	var attack_cells := battle_grid_data.get_attack_range(_current_actor.grid_pos, _current_actor.attack_range)
-	grid_renderer.highlight_cells(attack_cells, GridRenderer.ATLAS_ATTACK)
+	_enter_attack_mode()
 
 
 func _do_attack(target: Character) -> void:
@@ -207,7 +203,8 @@ func _on_move_cell_clicked(target_cell: Vector2i) -> void:
 	var path := battle_grid_data.get_shortest_path(_current_actor.grid_pos, target_cell)
 	_current_actor.walk_along_path(path)
 	await _current_actor.walk_finished
-	grid_renderer.clear_highlights()
+	if _current_actor != null:
+		player_controller.phase = PlayerController.Phase.MOVE
 	_refresh_attack_button()
 
 
@@ -236,9 +233,13 @@ func _on_enemy_clicked(enemy: Character) -> void:
 			_do_attack(enemy)
 		return
 
-	# MOVE 模式：自动走到攻击位
+	# 已移动：若敌人在攻击范围内则直接进入攻击模式
 	if _has_moved:
+		if _is_in_attack_range(_current_actor, enemy):
+			_enter_attack_mode()
 		return
+
+	# 未移动：自动走到最近攻击位
 	var attack_pos := _find_attack_position(_current_actor, enemy)
 	if attack_pos == Vector2i(-1, -1):
 		return
@@ -249,24 +250,27 @@ func _on_enemy_clicked(enemy: Character) -> void:
 		var path := battle_grid_data.get_shortest_path(_current_actor.grid_pos, attack_pos)
 		_current_actor.walk_along_path(path)
 		await _current_actor.walk_finished
-	# 自动进入攻击模式：红高亮攻击范围
-	_attack_mode = true
-	action_menu.show_attack_button(false)
-	grid_renderer.clear_highlights()
-	var attack_cells := battle_grid_data.get_attack_range(_current_actor.grid_pos, _current_actor.attack_range)
-	grid_renderer.highlight_cells(attack_cells, GridRenderer.ATLAS_ATTACK)
+	_enter_attack_mode()
 
 
 func _is_in_attack_range(actor: Character, target: Character) -> bool:
 	return _manhattan(actor.grid_pos, target.grid_pos) <= actor.attack_range
 
 
+# 进入攻击模式：红色高亮攻击范围
+func _enter_attack_mode() -> void:
+	_attack_mode = true
+	action_menu.show_attack_button(false)
+	grid_renderer.clear_highlights()
+	var attack_cells := battle_grid_data.get_attack_range(_current_actor.grid_pos, _current_actor.attack_range)
+	grid_renderer.highlight_cells(attack_cells, GridRenderer.ATLAS_ATTACK)
+
 # 取消攻击模式，若未移动则恢复蓝色高亮
 func _cancel_attack_mode() -> void:
 	grid_renderer.clear_highlights()
 	_attack_mode = false
-	if not _has_moved and _current_actor != null:
-		player_controller.start_move_phase(_current_actor)
+	if _current_actor != null:
+		player_controller.phase = PlayerController.Phase.MOVE
 	_refresh_attack_button()
 
 func _end_actor() -> void:
@@ -341,7 +345,7 @@ func _input(event: InputEvent) -> void:
 	if event.button_index == MOUSE_BUTTON_RIGHT:
 		if _attack_mode:
 			_cancel_attack_mode()
-		if _has_moved and not _has_acted:
+		elif _has_moved and not _has_acted:
 			_on_undo()
 		return
 
