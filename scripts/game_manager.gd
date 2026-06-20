@@ -8,6 +8,7 @@ var players: Array[Character] = []
 var enemies: Array[Character] = []
 var action_menu: ActionMenu
 var _info_panel: Control
+var _confirm_dialog: ConfirmationDialog
 
 const PLAYER_STATS := {
 	name = "Player", team = Character.Team.PLAYER,
@@ -64,6 +65,14 @@ func _setup() -> void:
 	# InfoPanel — 选中角色状态
 	_info_panel = _create_info_panel()
 	ui_layer.add_child(_info_panel)
+
+	_confirm_dialog = ConfirmationDialog.new()
+	_confirm_dialog.size = Vector2(300, 120)
+	_confirm_dialog.title = "结束回合"
+	_confirm_dialog.dialog_text = "所有玩家已完成操作，是否结束回合？"
+	_confirm_dialog.confirmed.connect(_on_confirm_end)
+	_confirm_dialog.canceled.connect(_on_cancel_end)
+	ui_layer.add_child(_confirm_dialog)
 
 	action_menu.wait_pressed.connect(_on_wait)
 	action_menu.end_turn_pressed.connect(_on_end_turn)
@@ -176,12 +185,37 @@ func _pc() -> PlayerController:
 	return _current_actor.controller as PlayerController
 
 
+func _check_end_round() -> void:
+	if _pending_players.is_empty():
+		_confirm_dialog.dialog_text = "所有玩家已完成操作，是否结束回合？"
+		_confirm_dialog.popup_centered()
+
+
+func _on_confirm_end() -> void:
+	_do_end_player_phase()
+
+
+func _on_cancel_end() -> void:
+	pass  # 玩家选择取消，不结束回合
+
+
+func _do_end_player_phase() -> void:
+	print("[回合] 结束玩家回合")
+	_execute_enemy_turns()
+
+
 func start_round() -> void:
 	_round_number += 1
 	print("========== 第 %d 回合 ==========" % _round_number)
 	for ch in players + enemies:
 		ch.reset_defense()
 	_pending_players = _get_alive(players)
+	_current_actor = null
+	_has_moved = false
+	_has_acted = false
+	_attack_mode = false
+	_move_from = Vector2i.ZERO
+	_info_panel.visible = false
 
 
 func _refresh_attack_button() -> void:
@@ -197,13 +231,15 @@ func _on_wait() -> void:
 		return
 	print("[回合] %s 等待" % _current_actor.character_name)
 	_end_actor()
+	_check_end_round()
 
 
 func _on_end_turn() -> void:
-	_end_actor()
-	_pending_players.clear()
-	print("[回合] 结束玩家回合")
-	_execute_enemy_turns()
+	if _pending_players.is_empty():
+		_do_end_player_phase()
+	else:
+		_confirm_dialog.dialog_text = "还有 %d 个角色未行动，确定结束回合？" % _pending_players.size()
+		_confirm_dialog.popup_centered()
 
 
 func _on_attack() -> void:
@@ -224,7 +260,7 @@ func _do_attack(target: Character) -> void:
 	_attack_mode = false
 	print("[回合] %s 攻击完成，回合自动结束" % _current_actor.character_name)
 	_end_actor()
-	_refresh_info_panel()
+	_check_end_round()
 
 
 func _on_undo() -> void:
@@ -248,7 +284,7 @@ func _on_skill(skill_name: String) -> void:
 			_has_acted = true
 			print("[回合] %s 使用防御，回合自动结束" % _current_actor.character_name)
 			_end_actor()
-	_refresh_info_panel()
+	_check_end_round()
 
 
 func _on_move_cell_clicked(target_cell: Vector2i) -> void:
@@ -396,7 +432,7 @@ func check_win_condition() -> void:
 		start_round()
 
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton or not event.pressed:
 		return
 	if event.button_index != MOUSE_BUTTON_LEFT and event.button_index != MOUSE_BUTTON_RIGHT:
