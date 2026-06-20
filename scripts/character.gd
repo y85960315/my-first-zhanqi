@@ -76,7 +76,6 @@ func _on_step_done() -> void:
 	var from := _path[_path_step - 1]
 	var to := _path[_path_step]
 	battle_grid_data.move_character(from, to)
-	grid_pos = to
 	_step_along_path()
 
 
