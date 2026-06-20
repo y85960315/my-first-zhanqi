@@ -15,7 +15,7 @@ var move_range: int
 var is_defending: bool = false
 
 # --- 依赖注入 ---
-# var controller: Controller    # 后续取消注释
+var controller: Controller
 var battle_grid_data: BattleGridData
 var grid_renderer: GridRenderer
 
