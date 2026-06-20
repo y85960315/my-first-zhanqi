@@ -427,7 +427,7 @@ func _input(event: InputEvent) -> void:
 	# 点击待行动玩家
 	if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.PLAYER:
 		var ch := cell_data.occupant
-		if ch in _pending_players and ch != _current_actor:
+		if ch in _pending_players:
 			_select_player(ch)
 			return
 
@@ -439,9 +439,9 @@ func _input(event: InputEvent) -> void:
 func _deselect() -> void:
 	if _attack_mode:
 		_cancel_attack_mode()
+	# 保留 _current_actor 不置空，避免重新选中时丢失 _has_moved 等状态
 	grid_renderer.clear_highlights()
 	player_controller.phase = PlayerController.Phase.IDLE
-	_current_actor = null
 	_info_panel.visible = false
 	action_menu.show_attack_button(false)
 	action_menu.show_undo_button(false)
@@ -449,6 +449,9 @@ func _deselect() -> void:
 
 func _select_player(ch: Character) -> void:
 	if ch == _current_actor:
+		player_controller.start_move_phase(ch)
+		_refresh_info_panel()
+		_refresh_attack_button()
 		return
 	if ch.is_moving:
 		return
