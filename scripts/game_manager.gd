@@ -250,9 +250,12 @@ func _on_enemy_clicked(enemy: Character) -> void:
 		var path := battle_grid_data.get_shortest_path(_current_actor.grid_pos, attack_pos)
 		_current_actor.walk_along_path(path)
 		await _current_actor.walk_finished
-	_pending_attack_target = enemy
+	# 自动进入攻击模式：红高亮攻击范围
+	_attack_mode = true
+	action_menu.show_attack_button(false)
 	grid_renderer.clear_highlights()
-	_refresh_attack_button()
+	var attack_cells := battle_grid_data.get_attack_range(_current_actor.grid_pos, _current_actor.attack_range)
+	grid_renderer.highlight_cells(attack_cells, GridRenderer.ATLAS_ATTACK)
 
 
 func _is_in_attack_range(actor: Character, target: Character) -> bool:
