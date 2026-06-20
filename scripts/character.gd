@@ -85,6 +85,9 @@ func is_alive() -> bool:
 
 func take_damage(damage: int) -> void:
 	current_hp = maxi(0, current_hp - damage)
+	if current_hp <= 0:
+		visible = false
+		battle_grid_data.remove_character(grid_pos)
 
 
 func defend() -> void:

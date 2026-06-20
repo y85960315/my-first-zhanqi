@@ -42,9 +42,15 @@ func decide_move(_character: Character) -> Vector2i:
 	return pending_move
 
 
-func decide_action(_character: Character) -> ActionType:
-	return pending_action
+func decide_action(character: Character) -> ActionType:
+	if character.get_attack_targets().size() > 0:
+		return ActionType.ATTACK
+	return ActionType.DEFEND
 
 
-func decide_target(_character: Character, _enemies: Array[Character]) -> Character:
-	return pending_target
+func decide_target(_character: Character, enemies: Array[Character]) -> Character:
+	var best := enemies[0]
+	for e in enemies:
+		if e.current_hp < best.current_hp:
+			best = e
+	return best

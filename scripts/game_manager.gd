@@ -4,14 +4,12 @@ extends Node
 # --- 注入的引用 ---
 var battle_grid_data: BattleGridData
 var grid_renderer: GridRenderer
+var combat_system: CombatSystem
 var players: Array[Character] = []
 var enemies: Array[Character] = []
 
 # --- Controller ---
 var player_controller: PlayerController
-
-# --- 移动状态 ---
-var selected_character: Character = null
 
 # --- 初始数值 ---
 const PLAYER_STATS := {
@@ -64,14 +62,16 @@ func _setup() -> void:
 	grid_renderer.setup(battle_map.get_node("HighlightLayer"))
 	get_parent().add_child(grid_renderer)
 
-	# 3. 创建 Controller
+	# 3. 战斗系统
+	combat_system = CombatSystem.new()
+
+	# 4. 创建 Controller
 	player_controller = PlayerController.new()
 	player_controller.name = "PlayerController"
 	player_controller.battle_grid_data = battle_grid_data
 	player_controller.setup(grid_renderer)
-	player_controller.move_decided.connect(_on_player_move_decided)
 
-	# 4. 创建角色
+	# 5. 创建角色
 	var player := create_character(PLAYER_STATS, Vector2i(2, 4), load("res://assets/characters/player.png"), player_controller)
 	players.append(player)
 
@@ -80,6 +80,9 @@ func _setup() -> void:
 
 	var enemy2 := create_character(ENEMY2_STATS, Vector2i(8, 1), load("res://assets/characters/enemy2.png"), _create_ai_controller())
 	enemies.append(enemy2)
+
+	# 6. 开始第一个回合
+	start_round()
 
 
 func _create_ai_controller() -> AIController:
@@ -106,6 +109,102 @@ func create_character(stats: Dictionary, start_pos: Vector2i, texture: Texture2D
 	return ch
 
 
+# ============================================================
+#  回合流程
+# ============================================================
+
+var _pending_players: Array[Character] = []
+var _turn_in_progress: bool = false
+
+
+var _round_number: int = 0
+
+
+func start_round() -> void:
+	_round_number += 1
+	print("========== 第 %d 回合 ==========" % _round_number)
+	for ch in players + enemies:
+		ch.reset_defense()
+	_pending_players = _get_alive(players)
+	_turn_in_progress = false
+
+
+func _on_player_clicked(ch: Character) -> void:
+	if _turn_in_progress:
+		return
+	if ch not in _pending_players:
+		return
+	_turn_in_progress = true
+	print("[回合] %s 开始行动" % ch.character_name)
+
+	await execute_move_phase(ch)
+	await execute_action_phase(ch)
+
+	_pending_players.erase(ch)
+	_turn_in_progress = false
+
+	if _pending_players.is_empty():
+		await _execute_enemy_turns()
+		check_win_condition()
+
+
+func _execute_enemy_turns() -> void:
+	print("--- 敌人回合 ---")
+	for enemy in enemies:
+		if not enemy.is_alive():
+			continue
+		print("[回合] %s 开始行动" % enemy.character_name)
+		await execute_move_phase(enemy)
+		await execute_action_phase(enemy)
+
+
+func execute_move_phase(actor: Character) -> void:
+	var ctrl := actor.controller
+	var target_pos: Vector2i
+
+	if ctrl is PlayerController:
+		ctrl.start_move_phase(actor)
+		target_pos = await ctrl.move_decided
+	else:
+		ctrl.set_enemies(players)
+		target_pos = ctrl.decide_move(actor)
+
+	if target_pos != actor.grid_pos:
+		var path := battle_grid_data.get_shortest_path(actor.grid_pos, target_pos)
+		actor.walk_along_path(path)
+		await actor.walk_finished
+
+
+func execute_action_phase(actor: Character) -> void:
+	var enemies_alive := _get_alive_enemies(actor.team)
+	if enemies_alive.is_empty():
+		return
+
+	var ctrl := actor.controller
+	var action := ctrl.decide_action(actor)
+
+	match action:
+		Controller.ActionType.ATTACK:
+			var target := ctrl.decide_target(actor, enemies_alive)
+			if target:
+				combat_system.execute_action(actor, target, action)
+		Controller.ActionType.DEFEND:
+			combat_system.execute_action(actor, null, action)
+
+
+func check_win_condition() -> void:
+	if _all_dead(enemies):
+		print("胜利！所有敌人已消灭")
+	elif _all_dead(players):
+		print("失败！玩家已阵亡")
+	else:
+		start_round()
+
+
+# ============================================================
+#  输入（委托给 PlayerController）
+# ============================================================
+
 func _input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton or not event.pressed:
 		return
@@ -114,22 +213,40 @@ func _input(event: InputEvent) -> void:
 
 	var cell := grid_renderer.get_clicked_cell(event)
 
-	# 如果 PlayerController 在等待输入，委托给它
+	# 移动阶段进行中 → 委托给 PlayerController
 	if player_controller.phase != PlayerController.Phase.IDLE:
 		player_controller.handle_click(cell)
 		return
 
-	# 否则检测点击玩家角色
+	# 点击玩家角色 → 开始该角色的回合
 	var cell_data := battle_grid_data.get_cell(cell)
 	if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.PLAYER:
-		var ch := cell_data.occupant
-		if ch.is_moving:
-			return
-		selected_character = ch
-		player_controller.start_move_phase(ch)
+		_on_player_clicked(cell_data.occupant)
 
 
-func _on_player_move_decided(_cell: Vector2i) -> void:
-	var path := battle_grid_data.get_shortest_path(selected_character.grid_pos, _cell)
-	selected_character.walk_along_path(path)
-	selected_character = null
+# ============================================================
+#  内部辅助
+# ============================================================
+
+func _get_alive_enemies(team: Character.Team) -> Array[Character]:
+	var result: Array[Character] = []
+	var pool := enemies if team == Character.Team.PLAYER else players
+	for ch in pool:
+		if ch.is_alive():
+			result.append(ch)
+	return result
+
+
+func _get_alive(pool: Array[Character]) -> Array[Character]:
+	var result: Array[Character] = []
+	for ch in pool:
+		if ch.is_alive():
+			result.append(ch)
+	return result
+
+
+func _all_dead(pool: Array[Character]) -> bool:
+	for ch in pool:
+		if ch.is_alive():
+			return false
+	return true
