@@ -304,7 +304,8 @@ func _end_actor() -> void:
 
 func _select_player(ch: Character) -> void:
 	if ch == _current_actor:
-		_pc().start_move_phase(ch)
+		if not _has_moved:
+			_pc().start_move_phase(ch)
 		_refresh_info_panel()
 		_refresh_attack_button()
 		return
