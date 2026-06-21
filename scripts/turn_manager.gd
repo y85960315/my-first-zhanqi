@@ -21,6 +21,7 @@ var _enemy_index: int = 0
 
 # 信号
 signal enemy_phase_ended
+signal character_died
 
 
 # 在角色全部创建后调用，连接各模块信号
@@ -37,6 +38,14 @@ func setup_signals() -> void:
 	# PlayerController 信号
 	for p in players:
 		(p.controller as PlayerController).move_decided.connect(_on_move_cell_clicked)
+
+	# 角色死亡信号
+	for ch in players + enemies:
+		ch.died.connect(_on_character_died)
+
+
+func _on_character_died() -> void:
+	character_died.emit()
 
 
 func start_round() -> void:

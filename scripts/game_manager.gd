@@ -85,6 +85,7 @@ func _setup() -> void:
 
 	turn_manager.setup_signals()
 	turn_manager.enemy_phase_ended.connect(check_win_condition)
+	turn_manager.character_died.connect(check_win_condition)
 	turn_manager.start_round()
 
 
