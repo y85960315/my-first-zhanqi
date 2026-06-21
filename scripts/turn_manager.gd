@@ -177,6 +177,7 @@ func _on_attack() -> void:
 
 func _do_attack(target: Character) -> void:
 	_has_acted = true
+	_current_actor.play_anim("attack")
 	combat_system.execute_action(_current_actor, target, Controller.ActionType.ATTACK)
 	grid_renderer.clear_highlights()
 	ui_manager.show_attack_button(false)
@@ -205,6 +206,7 @@ func _on_skill(skill_name: String) -> void:
 		return
 	match skill_name:
 		"🛡️ 防御":
+			_current_actor.play_anim("defend")
 			combat_system.execute_action(_current_actor, null, Controller.ActionType.DEFEND)
 			_has_acted = true
 			print("[回合] %s 使用防御，回合自动结束" % _current_actor.character_name)

@@ -121,10 +121,10 @@ func _create_player_controller() -> PlayerController:
 
 
 func _setup_hanli_animation(ch: Character) -> void:
-	var frames: Array[Texture2D] = []
+	var idle: Array[Texture2D] = []
 	for i in range(1, 5):
-		frames.append(load("res://assets/characters/hanli/韩立移动%d.png" % i))
-	ch.setup_animation(frames)
+		idle.append(load("res://assets/characters/hanli/韩立移动%d.png" % i))
+	ch.setup_animation(idle, idle)  # walk 复用 idle 帧（暂无独立 walk/attack/defend）
 
 
 func _process(_delta: float) -> void:

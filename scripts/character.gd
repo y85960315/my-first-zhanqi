@@ -50,19 +50,33 @@ func set_texture(tex: Texture2D) -> void:
 	$Sprite2D.texture = tex
 
 
-func setup_animation(frames: Array[Texture2D]) -> void:
+func setup_animation(idle: Array[Texture2D], walk: Array[Texture2D] = [],
+		attack: Array[Texture2D] = [], defend: Array[Texture2D] = []) -> void:
 	$Sprite2D.visible = false
 	var anim := $AnimatedSprite2D
 	anim.visible = true
 	var sf := SpriteFrames.new()
 	sf.add_animation("idle")
-	sf.add_frame("idle", frames[0])
 	sf.add_animation("walk")
-	for f in frames:
+	sf.add_animation("attack")
+	sf.add_animation("defend")
+	for f in idle:
+		sf.add_frame("idle", f)
+	for f in walk if walk.size() > 0 else idle:
 		sf.add_frame("walk", f)
+	for f in attack if attack.size() > 0 else idle:
+		sf.add_frame("attack", f)
+	for f in defend if defend.size() > 0 else idle:
+		sf.add_frame("defend", f)
 	sf.set_animation_speed("walk", 8.0)
+	sf.set_animation_speed("attack", 10.0)
 	anim.sprite_frames = sf
 	anim.play("idle")
+
+
+func play_anim(name: String) -> void:
+	if $AnimatedSprite2D.visible:
+		$AnimatedSprite2D.play(name)
 
 
 func walk_along_path(path: Array[Vector2i]) -> void:
