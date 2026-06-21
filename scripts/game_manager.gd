@@ -66,6 +66,22 @@ func _setup() -> void:
 	_info_panel = _create_info_panel()
 	ui_layer.add_child(_info_panel)
 
+	# 悬停标签 — 显示敌人信息
+	_hover_label = Label.new()
+	_hover_label.visible = false
+	_hover_label.add_theme_font_size_override("font_size", 14)
+	_hover_label.add_theme_color_override("font_color", Color.WHITE)
+	# 深色半透明背景
+	var hover_style := StyleBoxFlat.new()
+	hover_style.bg_color = Color(0.05, 0.05, 0.1, 0.8)
+	hover_style.set_corner_radius_all(4)
+	hover_style.content_margin_left = 8
+	hover_style.content_margin_right = 8
+	hover_style.content_margin_top = 4
+	hover_style.content_margin_bottom = 4
+	_hover_label.add_theme_stylebox_override("normal", hover_style)
+	ui_layer.add_child(_hover_label)
+
 	_confirm_dialog = ConfirmationDialog.new()
 	_confirm_dialog.size = Vector2(300, 120)
 	_confirm_dialog.title = "结束回合"
@@ -133,6 +149,8 @@ var _attack_mode: bool = false
 
 
 
+var _hover_label: Label
+
 var _name_label: Label
 var _hp_label: Label
 var _status_label: Label
@@ -143,6 +161,16 @@ func _create_info_panel() -> Control:
 	panel.position = Vector2(10, 10)
 	panel.size = Vector2(220, 80)
 
+	# === InfoPanel 深色背景样式 ===
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.1, 0.1, 0.15, 0.85)
+	panel_style.set_corner_radius_all(6)
+	panel_style.content_margin_left = 8
+	panel_style.content_margin_right = 8
+	panel_style.content_margin_top = 4
+	panel_style.content_margin_bottom = 4
+	panel.add_theme_stylebox_override("panel", panel_style)
+
 	var vbox := VBoxContainer.new()
 	vbox.anchor_right = 1.0
 	vbox.anchor_bottom = 1.0
@@ -150,10 +178,12 @@ func _create_info_panel() -> Control:
 
 	_name_label = Label.new()
 	_name_label.add_theme_font_size_override("font_size", 18)
+	_name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.95))
 	vbox.add_child(_name_label)
 
 	_hp_label = Label.new()
 	_hp_label.add_theme_font_size_override("font_size", 16)
+	_hp_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
 	vbox.add_child(_hp_label)
 
 	_status_label = Label.new()
@@ -209,6 +239,7 @@ func start_round() -> void:
 	print("========== 第 %d 回合 ==========" % _round_number)
 	for ch in players + enemies:
 		ch.reset_defense()
+		ch.modulate = Color.WHITE
 	_pending_players = _get_alive(players)
 	_current_actor = null
 	_has_moved = false
@@ -371,7 +402,8 @@ func _cancel_attack_mode() -> void:
 func _end_actor() -> void:
 	if _current_actor == null:
 		return
-	var ctrl := _current_actor.controller
+	_current_actor.modulate = Color.GRAY
+	var ctrl := _current_actor.controller as PlayerController
 	_pending_players.erase(_current_actor)
 	_current_actor = null
 	_has_moved = false
@@ -430,6 +462,25 @@ func check_win_condition() -> void:
 		print("失败！玩家已阵亡")
 	else:
 		start_round()
+
+
+func _process(_delta: float) -> void:
+	if not is_inside_tree() or grid_renderer == null or battle_grid_data == null or _hover_label == null:
+		return
+	# 悬停检测：鼠标所在格子上有敌人 → 显示标签
+	var mouse_pos := get_viewport().get_mouse_position()
+	var cell := grid_renderer.get_cell_at_screen(mouse_pos)
+	if not battle_grid_data.is_in_bounds(cell):
+		_hover_label.visible = false
+		return
+	var cell_data := battle_grid_data.get_cell(cell)
+	if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.ENEMY:
+		var enemy := cell_data.occupant
+		_hover_label.text = "%s\nHP: %d/%d" % [enemy.character_name, enemy.current_hp, enemy.max_hp]
+		_hover_label.position = mouse_pos + Vector2(12, -20)
+		_hover_label.visible = true
+	else:
+		_hover_label.visible = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -520,6 +571,7 @@ func _select_player(ch: Character) -> void:
 			await _rollback_move()
 		_deselect()
 	_current_actor = ch
+	ch.modulate = Color.WHITE
 	_has_moved = false
 	_has_acted = false
 	_attack_mode = false

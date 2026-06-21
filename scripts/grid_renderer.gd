@@ -41,3 +41,9 @@ func highlight_cells(coords: Array[Vector2i], atlas_pos: Vector2i) -> void:
 # 清除所有高亮
 func clear_highlights() -> void:
 	highlight_layer.clear()
+
+
+# 屏幕坐标 → 格子坐标（用于鼠标悬停检测）
+func get_cell_at_screen(screen_pos: Vector2) -> Vector2i:
+	var local_pos: Vector2 = highlight_layer.to_local(screen_pos)
+	return highlight_layer.local_to_map(local_pos)
