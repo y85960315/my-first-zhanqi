@@ -84,7 +84,7 @@ func _setup() -> void:
 	enemies.append(enemy2)
 
 	turn_manager.setup_signals()
-	turn_manager.enemy_phase_ended.connect(check_win_condition)
+	turn_manager.enemy_phase_ended.connect(_on_enemy_phase_ended)
 	turn_manager.character_died.connect(check_win_condition)
 	turn_manager.start_round()
 
@@ -132,8 +132,13 @@ func check_win_condition() -> void:
 		print("胜利！所有敌人已消灭")
 	elif _all_dead(players):
 		print("失败！玩家已阵亡")
-	else:
-		turn_manager.start_round()
+
+
+func _on_enemy_phase_ended() -> void:
+	check_win_condition()
+	if _all_dead(enemies) or _all_dead(players):
+		return
+	turn_manager.start_round()
 
 
 func _all_dead(pool: Array[Character]) -> bool:
