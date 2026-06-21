@@ -161,6 +161,16 @@ func _create_info_panel() -> Control:
 	panel.position = Vector2(10, 10)
 	panel.size = Vector2(220, 80)
 
+	# === InfoPanel 深色背景样式 ===
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.1, 0.1, 0.15, 0.85)
+	panel_style.set_corner_radius_all(6)
+	panel_style.content_margin_left = 8
+	panel_style.content_margin_right = 8
+	panel_style.content_margin_top = 4
+	panel_style.content_margin_bottom = 4
+	panel.add_theme_stylebox_override("panel", panel_style)
+
 	var vbox := VBoxContainer.new()
 	vbox.anchor_right = 1.0
 	vbox.anchor_bottom = 1.0
@@ -168,10 +178,12 @@ func _create_info_panel() -> Control:
 
 	_name_label = Label.new()
 	_name_label.add_theme_font_size_override("font_size", 18)
+	_name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.95))
 	vbox.add_child(_name_label)
 
 	_hp_label = Label.new()
 	_hp_label.add_theme_font_size_override("font_size", 16)
+	_hp_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
 	vbox.add_child(_hp_label)
 
 	_status_label = Label.new()
