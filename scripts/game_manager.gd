@@ -403,7 +403,7 @@ func _end_actor() -> void:
 	if _current_actor == null:
 		return
 	_current_actor.modulate = Color.GRAY
-	var ctrl := _current_actor.controller
+	var ctrl := _current_actor.controller as PlayerController
 	_pending_players.erase(_current_actor)
 	_current_actor = null
 	_has_moved = false
@@ -465,7 +465,7 @@ func check_win_condition() -> void:
 
 
 func _process(_delta: float) -> void:
-	if not is_inside_tree() or grid_renderer == null:
+	if not is_inside_tree() or grid_renderer == null or battle_grid_data == null or _hover_label == null:
 		return
 	# 悬停检测：鼠标所在格子上有敌人 → 显示标签
 	var mouse_pos := get_viewport().get_mouse_position()
