@@ -6,3 +6,6 @@
 script = ExtResource("1_agfs1")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=320256210]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=320256211]
+visible = false

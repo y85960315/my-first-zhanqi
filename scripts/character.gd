@@ -50,10 +50,27 @@ func set_texture(tex: Texture2D) -> void:
 	$Sprite2D.texture = tex
 
 
+func setup_animation(frames: Array[Texture2D]) -> void:
+	$Sprite2D.visible = false
+	var anim := $AnimatedSprite2D
+	anim.visible = true
+	var sf := SpriteFrames.new()
+	sf.add_animation("idle")
+	sf.add_frame("idle", frames[0])
+	sf.add_animation("walk")
+	for f in frames:
+		sf.add_frame("walk", f)
+	sf.set_animation_speed("walk", 8.0)
+	anim.sprite_frames = sf
+	anim.play("idle")
+
+
 func walk_along_path(path: Array[Vector2i]) -> void:
 	if path.size() < 2:
 		return
 	is_moving = true
+	if $AnimatedSprite2D.visible:
+		$AnimatedSprite2D.play("walk")
 	_path = path
 	_path_step = 0
 	_step_along_path()
@@ -63,6 +80,8 @@ func _step_along_path() -> void:
 	_path_step += 1
 	if _path_step >= _path.size():
 		is_moving = false
+		if $AnimatedSprite2D.visible:
+			$AnimatedSprite2D.play("idle")
 		walk_finished.emit()
 		return
 

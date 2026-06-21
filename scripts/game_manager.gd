@@ -78,6 +78,7 @@ func _setup() -> void:
 
 	var p2 := create_character(HANLI_STATS, Vector2i(7, 4), load("res://assets/characters/player.png"), _create_player_controller())
 	players.append(p2)
+	_setup_hanli_animation(p2)
 
 	var enemy1 := create_character(ENEMY1_STATS, Vector2i(5, 1), load("res://assets/characters/enemy1.png"), _create_ai_controller())
 	enemies.append(enemy1)
@@ -117,6 +118,13 @@ func _create_player_controller() -> PlayerController:
 	pc.battle_grid_data = battle_grid_data
 	pc.setup(grid_renderer)
 	return pc
+
+
+func _setup_hanli_animation(ch: Character) -> void:
+	var frames: Array[Texture2D] = []
+	for i in range(1, 5):
+		frames.append(load("res://assets/characters/hanli/韩立移动%d.png" % i))
+	ch.setup_animation(frames)
 
 
 func _process(_delta: float) -> void:
