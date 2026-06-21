@@ -66,6 +66,22 @@ func _setup() -> void:
 	_info_panel = _create_info_panel()
 	ui_layer.add_child(_info_panel)
 
+	# 悬停标签 — 显示敌人信息
+	_hover_label = Label.new()
+	_hover_label.visible = false
+	_hover_label.add_theme_font_size_override("font_size", 14)
+	_hover_label.add_theme_color_override("font_color", Color.WHITE)
+	# 深色半透明背景
+	var hover_style := StyleBoxFlat.new()
+	hover_style.bg_color = Color(0.05, 0.05, 0.1, 0.8)
+	hover_style.set_corner_radius_all(4)
+	hover_style.content_margin_left = 8
+	hover_style.content_margin_right = 8
+	hover_style.content_margin_top = 4
+	hover_style.content_margin_bottom = 4
+	_hover_label.add_theme_stylebox_override("normal", hover_style)
+	ui_layer.add_child(_hover_label)
+
 	_confirm_dialog = ConfirmationDialog.new()
 	_confirm_dialog.size = Vector2(300, 120)
 	_confirm_dialog.title = "结束回合"
@@ -132,6 +148,8 @@ var _move_from: Vector2i
 var _attack_mode: bool = false
 
 
+
+var _hover_label: Label
 
 var _name_label: Label
 var _hp_label: Label
@@ -432,6 +450,23 @@ func check_win_condition() -> void:
 		print("失败！玩家已阵亡")
 	else:
 		start_round()
+
+
+func _process(_delta: float) -> void:
+	# 悬停检测：鼠标所在格子上有敌人 → 显示标签
+	var mouse_pos := get_viewport().get_mouse_position()
+	var cell := grid_renderer.get_cell_at_screen(mouse_pos)
+	if not battle_grid_data.is_in_bounds(cell):
+		_hover_label.visible = false
+		return
+	var cell_data := battle_grid_data.get_cell(cell)
+	if cell_data and cell_data.occupant and cell_data.occupant.team == Character.Team.ENEMY:
+		var enemy := cell_data.occupant
+		_hover_label.text = "%s\nHP: %d/%d" % [enemy.character_name, enemy.current_hp, enemy.max_hp]
+		_hover_label.position = mouse_pos + Vector2(12, -20)
+		_hover_label.visible = true
+	else:
+		_hover_label.visible = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
