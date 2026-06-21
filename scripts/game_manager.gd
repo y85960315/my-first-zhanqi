@@ -209,6 +209,7 @@ func start_round() -> void:
 	print("========== 第 %d 回合 ==========" % _round_number)
 	for ch in players + enemies:
 		ch.reset_defense()
+		ch.modulate = Color.WHITE
 	_pending_players = _get_alive(players)
 	_current_actor = null
 	_has_moved = false
@@ -371,6 +372,7 @@ func _cancel_attack_mode() -> void:
 func _end_actor() -> void:
 	if _current_actor == null:
 		return
+	_current_actor.modulate = Color.GRAY
 	var ctrl := _current_actor.controller
 	_pending_players.erase(_current_actor)
 	_current_actor = null
@@ -520,6 +522,7 @@ func _select_player(ch: Character) -> void:
 			await _rollback_move()
 		_deselect()
 	_current_actor = ch
+	ch.modulate = Color.WHITE
 	_has_moved = false
 	_has_acted = false
 	_attack_mode = false
