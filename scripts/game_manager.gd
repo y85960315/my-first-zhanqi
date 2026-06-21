@@ -8,6 +8,7 @@ var turn_manager: TurnManager
 var ui_manager: UIManager
 var players: Array[Character] = []
 var enemies: Array[Character] = []
+var game_over: bool = false
 
 const PLAYER_STATS := {
 	name = "Player", team = Character.Team.PLAYER,
@@ -118,20 +119,28 @@ func _create_player_controller() -> PlayerController:
 
 
 func _process(_delta: float) -> void:
+	if game_over:
+		return
 	if ui_manager:
 		ui_manager.update_hover()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if game_over:
+		return
 	if turn_manager:
 		turn_manager.handle_input(event)
 
 
 func check_win_condition() -> void:
 	if _all_dead(enemies):
+		game_over = true
 		print("胜利！所有敌人已消灭")
+		ui_manager.show_game_over("游戏胜利！", Color.GREEN)
 	elif _all_dead(players):
+		game_over = true
 		print("失败！玩家已阵亡")
+		ui_manager.show_game_over("游戏失败", Color.RED)
 
 
 func _on_enemy_phase_ended() -> void:

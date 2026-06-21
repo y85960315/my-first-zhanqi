@@ -12,6 +12,7 @@ var confirm_dialog: ConfirmationDialog
 var hover_label: Label
 
 # 内部
+var _ui_layer: CanvasLayer
 var _name_label: Label
 var _hp_label: Label
 var _status_label: Label
@@ -27,6 +28,8 @@ signal end_turn_canceled
 
 
 func setup(ui_layer: CanvasLayer) -> void:
+	_ui_layer = ui_layer
+
 	# ActionMenu
 	action_menu = load("res://scenes/action_menu.tscn").instantiate()
 	action_menu.name = "ActionMenu"
@@ -95,6 +98,22 @@ func show_undo_button(show: bool) -> void:
 func popup_confirm(text: String) -> void:
 	confirm_dialog.dialog_text = text
 	confirm_dialog.popup_centered()
+
+
+func show_game_over(text: String, color: Color) -> void:
+	action_menu.visible = false
+	info_panel.visible = false
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 48)
+	label.add_theme_color_override("font_color", color)
+	label.anchor_left = 0.5
+	label.anchor_top = 0.5
+	label.position = Vector2(-200, -50)
+	label.size = Vector2(400, 100)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_ui_layer.add_child(label)
 
 
 func _create_info_panel() -> Control:
