@@ -99,7 +99,7 @@ func _setup() -> void:
 	var p1 := create_character(PLAYER_STATS, Vector2i(2, 4), load("res://assets/characters/player.png"), _create_player_controller())
 	players.append(p1)
 
-	var p2 := create_character(HANLI_STATS, Vector2i(7, 4), load("res://assets/characters/hanli.png"), _create_player_controller())
+	var p2 := create_character(HANLI_STATS, Vector2i(7, 4), load("res://assets/characters/player.png"), _create_player_controller())
 	players.append(p2)
 
 	var enemy1 := create_character(ENEMY1_STATS, Vector2i(5, 1), load("res://assets/characters/enemy1.png"), _create_ai_controller())
