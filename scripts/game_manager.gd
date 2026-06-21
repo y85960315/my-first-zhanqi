@@ -63,6 +63,7 @@ func _setup() -> void:
 	ui_manager.grid_renderer = grid_renderer
 	ui_manager.battle_grid_data = battle_grid_data
 	ui_manager.setup(ui_layer)
+	get_parent().add_child(ui_manager)
 
 	turn_manager = TurnManager.new()
 	turn_manager.battle_grid_data = battle_grid_data
