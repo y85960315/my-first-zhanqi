@@ -453,6 +453,8 @@ func check_win_condition() -> void:
 
 
 func _process(_delta: float) -> void:
+	if not is_inside_tree() or grid_renderer == null:
+		return
 	# 悬停检测：鼠标所在格子上有敌人 → 显示标签
 	var mouse_pos := get_viewport().get_mouse_position()
 	var cell := grid_renderer.get_cell_at_screen(mouse_pos)
