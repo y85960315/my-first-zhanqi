@@ -2,6 +2,26 @@ class_name AIController
 extends Controller
 
 
+# 唯一对外接口：自动完成全部决策 → 移动 → 发出 action_finished
+func do_action(character: Character) -> void:
+	# 1. 决定移动位置并移动
+	var target_pos := decide_move(character)
+	if target_pos != character.grid_pos:
+		var path := battle_grid_data.get_shortest_path(character.grid_pos, target_pos)
+		character.walk_along_path(path)
+		await character.walk_finished
+	# 2. 决定行动与目标
+	var action := decide_action(character)
+	var target: Character = null
+	match action:
+		ActionType.ATTACK:
+			var alive := _get_alive_enemies()
+			if not alive.is_empty():
+				target = decide_target(character, alive)
+	# 3. 通知调用者
+	action_finished.emit(action, target)
+
+
 func decide_move(character: Character) -> Vector2i:
 	var options := character.get_move_options()
 	var alive := _get_alive_enemies()

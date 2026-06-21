@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <!-- ================================================================
+       Page 1: 当前架构问题 — GameManager God Class
+       ================================================================ -->
+  <diagram name="当前架构问题" id="p1">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1050">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 标题 -->
+        <mxCell id="2" value="当前架构问题 — GameManager 职责过重 (God Class 反模式)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=22;fontStyle=1;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="900" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 中心：GameManager (大而红，显示问题) ===== -->
+        <mxCell id="3" value="GameManager&#xa;(~610 行代码，承担 7 大类职责)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="100" width="400" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- 副标题：问题标签 -->
+        <mxCell id="4" value="&#9888; 职责过多 — 耦合严重 — 难以扩展" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#b85450;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="170" width="360" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 左列：3 个职责组 ===== -->
+
+        <!-- 1. 回合管理 -->
+        <mxCell id="10" value="回合 &amp; 状态管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="260" width="320" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="start_round()&#xa;_pending_players&#xa;_end_actor()&#xa;_select_player() / _deselect()&#xa;_has_moved / _has_acted&#xa;_attack_mode / _current_actor&#xa;_move_from" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;fontColor=#666666;spacingLeft=10;spacingTop=5;" vertex="1" parent="10">
+          <mxGeometry x="0" y="30" width="320" height="170" as="geometry" />
+        </mxCell>
+
+        <!-- 2. 战斗流程 -->
+        <mxCell id="20" value="战斗流程控制" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="500" width="320" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="_do_attack()&#xa;_enter_attack_mode()&#xa;_cancel_attack_mode()&#xa;_find_attack_position()&#xa;_is_in_attack_range()&#xa;_on_attack()&#xa;_on_enemy_clicked()" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;fontColor=#666666;spacingLeft=10;spacingTop=5;" vertex="1" parent="20">
+          <mxGeometry x="0" y="30" width="320" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- 3. 胜负判定 -->
+        <mxCell id="30" value="胜负 &amp; 回合流转" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="720" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="31" value="check_win_condition()&#xa;_execute_enemy_turns()&#xa;_step_enemy()&#xa;_all_dead() / _get_alive()&#xa;_check_end_round()" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;fontColor=#666666;spacingLeft=10;spacingTop=5;" vertex="1" parent="30">
+          <mxGeometry x="0" y="30" width="320" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 右列：3 个职责组 ===== -->
+
+        <!-- 4. 玩家交互 -->
+        <mxCell id="40" value="玩家交互 &amp; 输入处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="260" width="320" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="41" value="_unhandled_input()&#xa;_on_move_cell_clicked()&#xa;_on_enemy_clicked()&#xa;_select_player() / _deselect()&#xa;_rollback_move()&#xa;_on_undo()&#xa;鼠标悬停检测 (_process)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;fontColor=#666666;spacingLeft=10;spacingTop=5;" vertex="1" parent="40">
+          <mxGeometry x="0" y="30" width="320" height="170" as="geometry" />
+        </mxCell>
+
+        <!-- 5. UI 管理 -->
+        <mxCell id="50" value="UI 创建 &amp; 管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="500" width="320" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="51" value="_create_info_panel()&#xa;_refresh_info_panel()&#xa;_hover_label (创建 + 样式)&#xa;_confirm_dialog (创建 + 连接)&#xa;action_menu 信号连接 (6 个)&#xa;按钮 可见性控制" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;fontColor=#666666;spacingLeft=10;spacingTop=5;" vertex="1" parent="50">
+          <mxGeometry x="0" y="30" width="320" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- 6. 角色创建 -->
+        <mxCell id="60" value="角色创建 &amp; 配置" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="720" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="61" value="create_character()&#xa;PLAYER_STATS / HANLI_STATS&#xa;ENEMY1_STATS / ENEMY2_STATS&#xa;_create_player_controller()&#xa;_create_ai_controller()" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;fontColor=#666666;spacingLeft=10;spacingTop=5;" vertex="1" parent="60">
+          <mxGeometry x="0" y="30" width="320" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 底部：独立类（用虚线/绿色表示良好分离） ===== -->
+        <mxCell id="70" value="已独立分离的类（职责清晰）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;dashed=1;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="900" width="1300" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="71" value="BattleGridData" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="20" y="35" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="72" value="Character" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="170" y="35" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="73" value="Controller&#xa;(基类)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="290" y="35" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="74" value="PlayerController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="410" y="35" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="75" value="AIController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="560" y="35" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="76" value="GridRenderer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="700" y="35" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="77" value="CombatSystem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="840" y="35" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="78" value="ActionMenu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="980" y="35" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="79" value="GridCell" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="70">
+          <mxGeometry x="1120" y="35" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 连线：GameManager → 各职责组 ===== -->
+        <mxCell id="100" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=2;dashed=1;" edge="1" parent="1" source="3" target="10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="101" value="承担" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#b85450;fontSize=10;fontStyle=1;" edge="1" parent="1" source="3" target="20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="102" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=2;dashed=1;" edge="1" parent="1" source="3" target="30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="103" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=2;dashed=1;" edge="1" parent="1" source="3" target="40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="104" value="承担" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#b85450;fontSize=10;fontStyle=1;" edge="1" parent="1" source="3" target="50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="105" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=2;dashed=1;" edge="1" parent="1" source="3" target="60">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 问题说明框 -->
+        <mxCell id="200" value="&#10060; 核心问题：&#xa;1. 单个类承担 7 大类职责，610 行代码难以维护&#xa;2. 输入处理、UI 管理、战斗逻辑高度耦合&#xa;3. 无法扩展新回合模式（如交替行动）&#xa;4. 修改任何功能都有牵一发动全身的风险" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=12;fontColor=#b85450;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="350" y="230" width="700" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- 连线：GameManager 也依赖独立类 (黑色细线) -->
+        <mxCell id="301" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;strokeWidth=1;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="3" target="70">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="302" value="GameManager 也直接操作这些类" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="550" y="865" width="200" height="30" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- ================================================================
+       Page 2: 目标架构设计 — 5 层全宽垂直分层
+       ================================================================ -->
+  <diagram name="目标架构设计" id="p2">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1250">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 标题 -->
+        <mxCell id="2" value="目标架构 — 5 层分层设计 (全宽垂直布局)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=22;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ===== L1: GameManager (y=70, h=150) ===== -->
+        <mxCell id="l1" value="第 1 层 — 游戏管理器 (GameManager)   |   编排者：持有下层引用，不处理具体逻辑" style="swimlane;swimlaneLine=0;startSize=36;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="70" width="1300" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="l1a" value="游戏初始化&#xa;(地图 + 角色 + 系统)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f4ff;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="l1">
+          <mxGeometry x="20" y="50" width="180" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l1b" value="游戏流程控制&#xa;开始 → 回合循环 → 胜负判定" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f4ff;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="l1">
+          <mxGeometry x="240" y="50" width="220" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l1d" value="持有引用:  TurnManager  |  UIManager  |  players[] / enemies[]  |  BattleGridData  |  CombatSystem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eeff;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="l1">
+          <mxGeometry x="500" y="50" width="760" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l1e" value="职责：仅编排游戏生命周期 — 初始化 → 开始回合 → 检测胜负 → 循环" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontColor=#6c8ebf;fontStyle=2;" vertex="1" parent="l1">
+          <mxGeometry x="500" y="100" width="760" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- e12: L1 → L2 -->
+        <mxCell id="e12" value="委托回合控制" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;fontColor=#666666;fontSize=10;" edge="1" parent="1" source="l1" target="l2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== L2: TurnManager (y=260, h=190) ===== -->
+        <mxCell id="l2" value="第 2 层 — 回合管理器 (TurnManager)   |   核心新增模块：控制回合流转 + 行动者调度" style="swimlane;swimlaneLine=0;startSize=36;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="260" width="1300" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="l2a" value="回合开始/结束&#xa;玩家阶段 → 敌人阶段" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#82b366;fontSize=11;" vertex="1" parent="l2">
+          <mxGeometry x="20" y="50" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l2b" value="行动者队列管理&#xa;遍历 pending_players&#xa;切换当前行动角色" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#82b366;fontSize=11;" vertex="1" parent="l2">
+          <mxGeometry x="250" y="50" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l2c" value="回合模式 (可扩展策略)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="l2">
+          <mxGeometry x="480" y="50" width="150" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l2d" value="TeamMode&#xa;所有玩家 → 所有敌人" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="l2">
+          <mxGeometry x="660" y="40" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="l2e" value="AlternateMode&#xa;玩家1→敌人1→玩家2…" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="l2">
+          <mxGeometry x="840" y="40" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="l2f" value="信号: player_action_started / finished&#xa;        player_phase_ended / enemy_phase_ended&#xa;        round_ended" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=10;fontColor=#82b366;spacingLeft=5;spacingTop=3;" vertex="1" parent="l2">
+          <mxGeometry x="660" y="105" width="500" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- e23: L2 → L3 -->
+        <mxCell id="e23" value="控制行动者" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#82b366;strokeWidth=2;fontColor=#666666;fontSize=10;" edge="1" parent="1" source="l2" target="l3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== L3: Controllers (y=490, h=165) ===== -->
+        <mxCell id="l3" value="第 3 层 — 控制器层 (Controllers)   |   PlayerController: 鼠标输入  |  AIController: 自动决策" style="swimlane;swimlaneLine=0;startSize=36;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="490" width="1300" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="l3a" value="Controller (基类)&#xa;do_action()  — 唯一对外接口&#xa;子类自行实现决策逻辑" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#9673a6;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="l3">
+          <mxGeometry x="20" y="50" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="l3b" value="PlayerController&#xa;do_action() → 激活输入监听&#xa;监听鼠标/键盘&#xa;Phase: IDLE→MOVE→ATTACK&#xa;通过信号通知动作完成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#9673a6;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="l3">
+          <mxGeometry x="250" y="50" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="l3c" value="AIController&#xa;do_action() → 内部完成全部决策&#xa;自动选择移动位置/攻击目标&#xa;优先级策略：低血量优先" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#9673a6;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="l3">
+          <mxGeometry x="500" y="50" width="230" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="l3d" value="&#9888; TurnManager 只管调用 do_action()&#xa;不关心内部是玩家输入还是 AI 决策" style="text;html=1;strokeColor=#9673a6;fillColor=#f3e5f5;rounded=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontStyle=2;" vertex="1" parent="l3">
+          <mxGeometry x="790" y="55" width="300" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- e35: L3 → L5 (控制器只读查询数据层) -->
+        <mxCell id="e35" value="只读查询" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontColor=#666666;fontSize=9;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="l3" target="l5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1370" y="572" />
+              <mxPoint x="1370" y="1080" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== L4: UIManager (y=695, h=170) ===== -->
+        <mxCell id="l4" value="第 4 层 — UI 管理器 (UIManager)   |   从 GameManager 拆分：统一管理所有 UI 组件" style="swimlane;swimlaneLine=0;startSize=36;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="695" width="1300" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="l4a" value="ActionMenu&#xa;攻击 / 等待 / 技能 / 结束 / 撤销" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#d6b656;fontSize=10;align=left;verticalAlign=top;spacingLeft=6;spacingTop=3;" vertex="1" parent="l4">
+          <mxGeometry x="20" y="50" width="190" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l4b" value="InfoPanel&#xa;选中角色状态面板" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="l4">
+          <mxGeometry x="240" y="50" width="160" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l4c" value="HoverLabel&#xa;鼠标悬停敌人信息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="l4">
+          <mxGeometry x="430" y="50" width="160" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l4d" value="ConfirmDialog&#xa;回合结束确认弹窗" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="l4">
+          <mxGeometry x="620" y="50" width="160" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l4e" value="&#9888; UIManager 统一创建、显示、信号转发&#xa;GameManager 不再直接创建 UI 元素" style="text;html=1;strokeColor=#d6b656;fillColor=#fff8e1;rounded=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontColor=#8B6914;spacingLeft=8;" vertex="1" parent="l4">
+          <mxGeometry x="810" y="50" width="460" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- e14: L1 → L4 (GameManager 持有 UIManager 引用) — 右侧绕行 -->
+        <mxCell id="e14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=1;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="l1" target="l4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1380" y="115" />
+              <mxPoint x="1380" y="746" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e14_label" value="持有引用" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=9;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="400" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- e42: L4 → L2 (UI 信号回传给 TurnManager) — 左侧绕行 -->
+        <mxCell id="e42" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d6b656;strokeWidth=1;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="l4" target="l2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="30" y="780" />
+              <mxPoint x="30" y="355" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e42_label" value="UI 事件信号" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=9;fontColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="5" y="540" width="70" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ===== L5: Data &amp; Systems (y=905, h=155) ===== -->
+        <mxCell id="l5" value="第 5 层 — 数据 &amp; 系统层 (Data &amp; Systems)   |   纯数据/工具类，不依赖上层" style="swimlane;swimlaneLine=0;startSize=36;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="905" width="1300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="l5a" value="BattleGridData&#xa;地图/寻路/范围/占位" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#666666;fontSize=11;" vertex="1" parent="l5">
+          <mxGeometry x="20" y="50" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l5b" value="CombatSystem&#xa;伤害计算 / 战斗结算" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#666666;fontSize=11;" vertex="1" parent="l5">
+          <mxGeometry x="260" y="50" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l5c" value="GridRenderer&#xa;网格渲染 / 高亮 / 坐标转换" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#666666;fontSize=11;" vertex="1" parent="l5">
+          <mxGeometry x="500" y="50" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l5d" value="Character&#xa;角色实体 / 移动动画" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#666666;fontSize=11;" vertex="1" parent="l5">
+          <mxGeometry x="740" y="50" width="180" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l5e" value="&#10004; 纯数据/工具类，不依赖上层模块" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="l5">
+          <mxGeometry x="960" y="55" width="300" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- e25: L2 → L5 (TurnManager 调用 CombatSystem) — 左侧 -->
+        <mxCell id="e25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;strokeWidth=1;dashed=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="l2" target="l5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="470" />
+              <mxPoint x="20" y="880" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e25_label" value="调用战斗" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=9;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="10" y="650" width="50" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- 图例 (y=1090) -->
+        <mxCell id="legend" value="图例" style="swimlane;startSize=22;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1090" width="420" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="legend">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="20" y="40" as="sourcePoint" />
+            <mxPoint x="80" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg1t" value="强依赖 (持有引用)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="90" y="25" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="" style="endArrow=classic;html=1;strokeWidth=1;strokeColor=#666666;dashed=1;" edge="1" parent="legend">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="20" y="65" as="sourcePoint" />
+            <mxPoint x="80" y="65" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg2t" value="弱依赖 (只读/信号)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="90" y="50" width="130" height="30" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- ================================================================
+       Page 3: 信号 / 数据流
+       ================================================================ -->
+  <diagram name="信号与数据流" id="p3">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 标题 -->
+        <mxCell id="2" value="关键信号 / 数据流" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=22;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="350" y="10" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 流程 1: 玩家移动 ===== -->
+        <mxCell id="s1_title" value="流程 1: 玩家点击移动" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="70" width="1300" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1a" value="鼠标点击格子" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0f4ff;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="140" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s1b" value="PlayerController&#xa;handle_click()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="230" y="130" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s1c" value="move_decided 信号" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="440" y="130" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s1d" value="TurnManager&#xa;处理移动请求" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="130" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s1e" value="Character&#xa;walk_along_path()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="840" y="130" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s1f" value="BattleGridData&#xa;move_character()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="130" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s1g" value="GridRenderer&#xa;清高亮" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="840" y="220" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=1;" edge="1" parent="1" source="s1a" target="s1b">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=1;" edge="1" parent="1" source="s1b" target="s1c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1c" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=1;" edge="1" parent="1" source="s1c" target="s1d">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1d" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=1;" edge="1" parent="1" source="s1d" target="s1e">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1e" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=1;" edge="1" parent="1" source="s1e" target="s1f">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1f" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;" edge="1" parent="1" source="s1c" target="s1g">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="245" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== 流程 2: 玩家攻击 ===== -->
+        <mxCell id="s2_title" value="流程 2: 玩家攻击敌人" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="310" width="1300" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s2a" value="点击敌人&#xa;(攻击模式)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff0f0;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="380" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s2b" value="PlayerController&#xa;确认攻击目标" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="230" y="370" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s2c" value="TurnManager&#xa;验证合法性" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="440" y="370" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s2d" value="CombatSystem&#xa;execute_action()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="650" y="370" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s2e" value="伤害计算 + 结算" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="870" y="370" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s2f" value="TurnManager&#xa;标记角色行动完成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="370" width="150" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e2a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=1;" edge="1" parent="1" source="s2a" target="s2b">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=1;" edge="1" parent="1" source="s2b" target="s2c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2c" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=1;" edge="1" parent="1" source="s2c" target="s2d">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2d" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=1;" edge="1" parent="1" source="s2d" target="s2e">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2e" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=1;" edge="1" parent="1" source="s2e" target="s2f">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 流程 3: 敌人 AI 回合 ===== -->
+        <mxCell id="s3_title" value="流程 3: 敌人 AI 回合 (玩家阶段结束后)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="500" width="1300" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s3a" value="TurnManager&#xa;enemy_phase_started" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="570" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s3b" value="遍历存活敌人" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="570" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s3c" value="AIController&#xa;do_action()&#xa;(内部: 选位→移动→&#xa;选目标→攻击)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="440" y="560" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="s3e" value="Character&#xa;walk_along_path()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="680" y="560" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3f" value="CombatSystem&#xa;execute_action()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="680" y="630" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3g" value="下一敌人&#xa;或阶段结束" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0f4ff;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="890" y="570" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3h" value="TurnManager&#xa;→ start_round()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="565" width="150" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e3a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="s3a" target="s3b">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="s3b" target="s3c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3d" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="s3c" target="s3e">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3e" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="s3c" target="s3f">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3f" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="s3e" target="s3g">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3g" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="s3f" target="s3g">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3h" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="s3g" target="s3h">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- 循环箭头 -->
+        <mxCell id="e3i" value="剩余敌人 → 循环" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontColor=#666666;fontSize=9;" edge="1" parent="1" source="s3g" target="s3b">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1010" y="635" />
+              <mxPoint x="1010" y="720" />
+              <mxPoint x="200" y="720" />
+              <mxPoint x="200" y="605" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== 流程 4: UI 交互 ===== -->
+        <mxCell id="s4_title" value="流程 4: UI 按钮交互" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="770" width="1300" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s4a" value="ActionMenu&#xa;按钮点击" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="840" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s4b" value="UIManager&#xa;信号转发" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="240" y="830" width="130" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s4c" value="等待" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="460" y="820" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s4d" value="攻击" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="560" y="820" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s4e" value="防御" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="660" y="820" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s4f" value="结束回合" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="760" y="820" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s4g" value="撤销" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="860" y="820" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s4h" value="TurnManager&#xa;相应处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="460" y="890" width="480" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e4a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4a" target="s4b">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4b" target="s4c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4c" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4b" target="s4d">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4d" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4b" target="s4e">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4e" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4b" target="s4f">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4f" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4b" target="s4g">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4g" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4c" target="s4h">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4h" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4d" target="s4h">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4i" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4e" target="s4h">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4j" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4f" target="s4h">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4k" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" parent="1" source="s4g" target="s4h">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 图例 -->
+        <mxCell id="leg3" value="图例" style="swimlane;startSize=22;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1000" width="500" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3a" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0f4ff;strokeColor=#6c8ebf;" vertex="1" parent="leg3">
+          <mxGeometry x="10" y="35" width="50" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3at" value="触发源" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="leg3">
+          <mxGeometry x="70" y="30" width="50" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3b" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="leg3">
+          <mxGeometry x="130" y="35" width="50" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3bt" value="决策/信号" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="leg3">
+          <mxGeometry x="190" y="30" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3c" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="leg3">
+          <mxGeometry x="270" y="35" width="50" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3ct" value="TurnManager" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="leg3">
+          <mxGeometry x="330" y="30" width="80" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3d" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="leg3">
+          <mxGeometry x="420" y="35" width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3dt" value="数据层" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="leg3">
+          <mxGeometry x="460" y="30" width="45" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+</mxfile>

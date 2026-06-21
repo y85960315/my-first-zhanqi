@@ -17,6 +17,11 @@ func setup(renderer: GridRenderer) -> void:
 	grid_renderer = renderer
 
 
+# 唯一对外接口：激活输入监听，等待玩家操作
+func do_action(character: Character) -> void:
+	start_move_phase(character)
+
+
 func start_move_phase(character: Character) -> void:
 	_character = character
 	phase = Phase.MOVE
